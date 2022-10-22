@@ -1,0 +1,17 @@
+{
+  "name": "rest_jwt_typescript",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Alilabib/reset-api-jwt-typescript.git",
+  "author": "alilabib <alilabib65@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "dev":"nodemon ./build/index.js",
+    "test":"node ./build/index.js",
+    "start":"tsc && node ./build/index.js",
+    "tsc":"tsc -w"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.4"
+  }
+}
