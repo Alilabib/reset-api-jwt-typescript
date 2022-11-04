@@ -8,6 +8,8 @@ const morgan_1 = __importDefault(require("morgan"));
 const helmet_1 = __importDefault(require("helmet"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const error_middleware_1 = __importDefault(require("./middleware/error.middleware"));
+const app_1 = __importDefault(require("./config/app"));
+const database_1 = __importDefault(require("./config/database"));
 class Server {
     constructor() {
         this.app = (0, express_1.default)();
@@ -15,7 +17,7 @@ class Server {
         this.routes();
     }
     config() {
-        this.app.set('port', process.env.PORT || 3000);
+        this.app.set('port', app_1.default.PORT);
         //middelwares
         this.app.use(express_1.default.json());
         this.app.use((0, morgan_1.default)('common'));
@@ -40,6 +42,18 @@ class Server {
             res.status(404).json({
                 message: 'Ohh you are lost, read the API documentation to find your way back home 😂',
             });
+        });
+        database_1.default.connect().then((client) => {
+            return client
+                .query('SELECT NOW()')
+                .then((res) => {
+                console.log(res.rows);
+                client.release();
+            }).catch((err) => {
+                console.warn(err.message);
+            });
+        }).catch((err) => {
+            console.warn(err.message);
         });
     }
     //start app

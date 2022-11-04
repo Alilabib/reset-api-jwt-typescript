@@ -3,6 +3,8 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import RateLimit from 'express-rate-limit';
 import errorMiddleware from './middleware/error.middleware';
+import config  from './config/app';
+import db from './config/database';
 class Server {
   public app: express.Application;
   constructor() {
@@ -11,7 +13,7 @@ class Server {
     this.routes();
   }
   config() {
-    this.app.set('port', process.env.PORT || 3000);
+    this.app.set('port',config.PORT);
     //middelwares
     this.app.use(express.json());
     this.app.use(morgan('common'));
@@ -40,6 +42,18 @@ class Server {
           'Ohh you are lost, read the API documentation to find your way back home 😂',
       });
     });
+    db.connect().then((client)=>{
+      return client
+      .query('SELECT NOW()')
+      .then((res)=>{
+        console.log(res.rows);
+        client.release();
+      }).catch((err)=>{
+        console.warn(err.message);
+      });
+    }).catch((err)=>{
+      console.warn(err.message);
+    })
 
   }
   //start app
