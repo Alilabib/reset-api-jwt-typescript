@@ -9,7 +9,8 @@ const helmet_1 = __importDefault(require("helmet"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const error_middleware_1 = __importDefault(require("./middleware/error.middleware"));
 const app_1 = __importDefault(require("./config/app"));
-const database_1 = __importDefault(require("./config/database"));
+// import db from './config/database';
+const routes_1 = __importDefault(require("./routes"));
 class Server {
     constructor() {
         this.app = (0, express_1.default)();
@@ -24,37 +25,38 @@ class Server {
         this.app.use((0, helmet_1.default)());
         this.app.use((0, express_rate_limit_1.default)({
             windowMs: 60 * 1000,
-            max: 2,
+            max: 100,
             standardHeaders: true,
             legacyHeaders: false
         }));
     }
     routes() {
         this.app.get('/', (req, res) => {
-            throw new Error('ali error');
+            //throw new Error('ali error');
             res.json({ message: 'Hello World' });
         });
-        this.app.post('/', (req, res) => {
-            res.json({ message: 'Hello World', data: req.body });
-        });
+        // this.app.post('/',(req:Request,res:Response)=>{
+        //   res.json({message:'Hello World',data:req.body}); 
+        // });
+        this.app.use('/api', routes_1.default);
         this.app.use(error_middleware_1.default);
         this.app.use((_req, res) => {
             res.status(404).json({
                 message: 'Ohh you are lost, read the API documentation to find your way back home 😂',
             });
         });
-        database_1.default.connect().then((client) => {
-            return client
-                .query('SELECT NOW()')
-                .then((res) => {
-                console.log(res.rows);
-                client.release();
-            }).catch((err) => {
-                console.warn(err.message);
-            });
-        }).catch((err) => {
-            console.warn(err.message);
-        });
+        // db.connect().then((client)=>{
+        //   return client
+        //   .query('SELECT NOW()')
+        //   .then((res)=>{
+        //     console.log(res.rows);
+        //     client.release();
+        //   }).catch((err)=>{
+        //     console.warn(err.message);
+        //   });
+        // }).catch((err)=>{
+        //   console.warn(err.message);
+        // })
     }
     //start app
     start() {

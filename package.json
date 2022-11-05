@@ -9,6 +9,9 @@
     "dev": "nodemon ./build/index.js",
     "test": "npm run build && jasmine",
     "start": "tsc && node ./build/index.js",
+    "migration:run": "db-migrate up",
+    "migration:down": "db-migrate down",
+    "migration:fresh": "db-migrate reset",
     "tsc": "tsc -w",
     "build": "tsc",
     "format": "prettier --write src/**/*.ts",
@@ -33,6 +36,8 @@
   },
   "dependencies": {
     "@types/morgan": "^1.9.3",
+    "db-migrate": "^0.11.13",
+    "db-migrate-pg": "^1.2.2",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-rate-limit": "^6.6.0",
