@@ -22,12 +22,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const userController = __importStar(require("../../controllers/users.controller"));
+const auth_middleware_1 = __importDefault(require("../../middleware/auth.middleware"));
 const routes = (0, express_1.Router)();
 routes.route('/')
-    .get(userController.getMany)
+    .get(auth_middleware_1.default, userController.getMany)
     .post(userController.create);
 routes.route('/:id')
     .get(userController.getOne)

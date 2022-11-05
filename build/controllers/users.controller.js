@@ -37,7 +37,7 @@ const getMany = (_req, res, next) => __awaiter(void 0, void 0, void 0, function*
         res.json({
             status: 'success',
             data: users,
-            message: "Users Successfully"
+            message: "Users Successfully 1"
         });
     }
     catch (error) {

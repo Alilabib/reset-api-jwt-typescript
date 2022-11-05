@@ -23,7 +23,7 @@ export const getMany =async (_req:Request, res:Response, next:NextFunction) => {
          res.json({
              status:'success',
              data:users,
-             message:"Users Successfully"
+             message:"Users Successfully 1"
          });
      } catch (error) {
         next(error); 
