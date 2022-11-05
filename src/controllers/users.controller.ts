@@ -1,5 +1,8 @@
 import {Request, Response, NextFunction} from 'express';
 import UserModel from '../models/user.model';
+import jwt from 'jsonwebtoken';
+import app from '../config/app';
+
 const userModel = new UserModel();
 export const create = async(req:Request, res:Response, next:NextFunction)=>{
     try {
@@ -60,6 +63,26 @@ export const deleteOne =async (req:Request, res:Response, next:NextFunction) => 
              status:'success',
              data:user,
              message:"User Deeleted Successfully"
+         });
+     } catch (error) {
+        next(error); 
+     }
+}
+
+export const login =async (req:Request, res:Response, next:NextFunction) => {
+    try {
+        const user = await userModel.authenticate(req.body.email,req.body.password);
+        const token = jwt.sign({user},app.jwt_secret as string);
+        if(!user){
+            return res.status(401).json({
+                status:'error',
+                message:"the username and password do not match please try again"
+            })
+        }
+         res.json({
+             status:'success',
+             data:{...user,token},
+             message:"Login Successfully"
          });
      } catch (error) {
         next(error); 

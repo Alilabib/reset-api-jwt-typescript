@@ -7,7 +7,10 @@ const { PORT,
     PGDATABASE,
     PGPASSWORD,
     PGPORT,
-    PGDATABASETEST
+    PGDATABASETEST,
+    BCRYPT_SECRET,
+    SALT_ROUNDS,
+    JWT_SECRET
 } = process.env;
 export default{
     PORT :PORT,
@@ -16,5 +19,7 @@ export default{
     db_password:PGPASSWORD,
     db_name: NODE_ENV == 'dev' ?  PGDATABASE : PGDATABASETEST,
     db_user:PGUSER,
-
+    secret:BCRYPT_SECRET,
+    secret_rounds:SALT_ROUNDS,
+    jwt_secret:JWT_SECRET
 }

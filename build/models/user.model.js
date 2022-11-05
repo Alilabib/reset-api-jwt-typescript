@@ -13,6 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = __importDefault(require("../config/database"));
+const app_1 = __importDefault(require("../config/app"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const hashPassowrd = (password) => {
+    const salt = parseInt(app_1.default.secret_rounds, 10);
+    return bcrypt_1.default.hashSync(`${password}${app_1.default.secret}`, salt);
+};
 class UserModel {
     //create user
     create(user) {
@@ -23,7 +29,13 @@ class UserModel {
                 const sql = `INSERT INTO users(email, user_name, first_name, last_name, password)
             values ($1, $2, $3, $4, $5) returning id,email,user_name,first_name,last_name`;
                 //run query
-                const result = yield connection.query(sql, [user.email, user.user_name, user.first_name, user.last_name, user.password]);
+                const result = yield connection.query(sql, [
+                    user.email,
+                    user.user_name,
+                    user.first_name,
+                    user.last_name,
+                    hashPassowrd(user.password)
+                ]);
                 //realse connection
                 connection.release();
                 //return result 
@@ -87,7 +99,7 @@ class UserModel {
                     user.user_name,
                     user.first_name,
                     user.last_name,
-                    user.password,
+                    hashPassowrd(user.password),
                     id
                 ]);
                 //realse connection
@@ -118,6 +130,31 @@ class UserModel {
             }
             catch (error) {
                 throw new Error(`Error at delete user ${error.message}`);
+            }
+        });
+    }
+    //authenticate user
+    authenticate(email, password) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log(email);
+                const connection = yield database_1.default.connect();
+                const sql = `SELECT password FROM users users Where email=$1`;
+                const result = yield connection.query(sql, [email]);
+                if (!result.rows.length) {
+                    return null;
+                }
+                const { password: hashPassowrd } = result.rows[0];
+                const isValidPassowrd = bcrypt_1.default.compareSync(`${password}${app_1.default.secret}`, hashPassowrd);
+                if (!isValidPassowrd) {
+                    return null;
+                }
+                const userQuery = `SELECT id,email,user_name,first_name,last_name FROM users Where email=$1`;
+                const userResult = yield connection.query(userQuery, [email]);
+                return userResult.rows[0];
+            }
+            catch (error) {
+                throw new Error(`Error at auth user ${error.message}`);
             }
         });
     }

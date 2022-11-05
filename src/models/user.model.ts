@@ -1,5 +1,11 @@
 import User from "../types/user.type";
 import db from '../config/database';
+import app from "../config/app";
+import bcrypt from 'bcrypt';
+const hashPassowrd =(password:string)=>{
+    const salt = parseInt(app.secret_rounds as string,10);
+    return bcrypt.hashSync(`${password}${app.secret}`,salt)
+}
 
 class UserModel{
     //create user
@@ -10,7 +16,13 @@ class UserModel{
             const sql = `INSERT INTO users(email, user_name, first_name, last_name, password)
             values ($1, $2, $3, $4, $5) returning id,email,user_name,first_name,last_name`;
             //run query
-            const result = await connection.query(sql,[user.email,user.user_name,user.first_name,user.last_name,user.password]);
+            const result = await connection.query(sql,[
+                user.email,
+                user.user_name,
+                user.first_name,
+                user.last_name,
+                hashPassowrd(user.password)
+            ]);
             //realse connection
             connection.release();
             //return result 
@@ -65,7 +77,7 @@ class UserModel{
                 user.user_name,
                 user.first_name,
                 user.last_name,
-                user.password,
+                hashPassowrd(user.password),
                 id
             ]);
             //realse connection
@@ -95,6 +107,29 @@ class UserModel{
         }
     }
     //authenticate user
+   async authenticate(email:string,password:string):Promise<User|null>{
+      try{
+        console.log(email);
+
+        const connection = await db.connect();
+        const sql = `SELECT password FROM users users Where email=$1`;
+        const result = await connection.query(sql,[email]);
+
+        if(!result.rows.length){
+            return null
+        }
+        const {password : hashPassowrd } = result.rows[0];
+        const isValidPassowrd = bcrypt.compareSync(`${password}${app.secret}`,hashPassowrd);
+        if(!isValidPassowrd){
+            return null
+        }
+        const userQuery = `SELECT id,email,user_name,first_name,last_name FROM users Where email=$1`;
+        const userResult = await connection.query(userQuery,[email]);
+        return userResult.rows[0];
+      }catch(error){
+        throw new Error (`Error at auth user ${(error as Error).message}`);
+      } 
+   }
 }
 
 export default UserModel;

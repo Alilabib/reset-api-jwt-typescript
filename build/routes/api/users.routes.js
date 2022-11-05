@@ -33,4 +33,5 @@ routes.route('/:id')
     .get(userController.getOne)
     .put(userController.updateOne)
     .delete(userController.deleteOne);
+routes.route('/login').post(userController.login);
 exports.default = routes;

@@ -12,8 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteOne = exports.updateOne = exports.getOne = exports.getMany = exports.create = void 0;
+exports.login = exports.deleteOne = exports.updateOne = exports.getOne = exports.getMany = exports.create = void 0;
 const user_model_1 = __importDefault(require("../models/user.model"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const app_1 = __importDefault(require("../config/app"));
 const userModel = new user_model_1.default();
 const create = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -85,3 +87,24 @@ const deleteOne = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.deleteOne = deleteOne;
+const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield userModel.authenticate(req.body.email, req.body.password);
+        const token = jsonwebtoken_1.default.sign({ user }, app_1.default.jwt_secret);
+        if (!user) {
+            return res.status(401).json({
+                status: 'error',
+                message: "the username and password do not match please try again"
+            });
+        }
+        res.json({
+            status: 'success',
+            data: Object.assign(Object.assign({}, user), { token }),
+            message: "Login Successfully"
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.login = login;
