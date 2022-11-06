@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon ./build/index.js",
-    "test": "npm run build && jasmine",
+    "test": "export NODE_ENV=test && db-migrate up --env test && tsc && jasmine && db-migrate reset",
     "start": "tsc && node ./build/index.js",
     "migration:run": "db-migrate up",
     "migration:down": "db-migrate down",
